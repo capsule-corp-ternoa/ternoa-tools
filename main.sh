@@ -1,35 +1,35 @@
 #!/bin/bash
 
 if [[ $ACCOUNT_SECRET_PHRASE = "" ]]; then
-    ACCOUNT_SECRET_PHRASE="$(cat config.txt | grep ACCOUNT_SECRET_PHRASE | cut -c 23-)"
+    ACCOUNT_SECRET_PHRASE="$(grep ACCOUNT_SECRET_PHRASE config.txt | cut -c 23-)"
 fi
 
 if [[ $NODE_PATH = "" ]]; then
-    NODE_PATH="$(cat config.txt | grep NODE_PATH | awk '{ print $2 }')"
+    NODE_PATH="$(grep NODE_PATH config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $NODE_CHAIN = "" ]]; then
-    NODE_CHAIN="$(cat config.txt | grep NODE_CHAIN | awk '{ print $2 }')"
+    NODE_CHAIN="$(grep NODE_CHAIN config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $NODE_MODE = "" ]]; then
-    NODE_MODE="$(cat config.txt | grep NODE_MODE | awk '{ print $2 }')"
+    NODE_MODE="$(grep NODE_MODE config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $NODE_NAME = "" ]]; then
-    NODE_NAME="$(cat config.txt | grep NODE_NAME | awk '{ print $2 }')"
+    NODE_NAME="$(grep NODE_NAME config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $NODE_DATABASE_PATH = "" ]]; then
-    NODE_DATABASE_PATH="$(cat config.txt | grep NODE_DATABASE_PATH | awk '{ print $2 }')"
+    NODE_DATABASE_PATH="$(grep NODE_DATABASE_PATH config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $NODE_PRIVATE_KEY = "" ]]; then
-    NODE_PRIVATE_KEY="$(cat config.txt | grep NODE_PRIVATE_KEY | awk '{ print $2 }')"
+    NODE_PRIVATE_KEY="$(grep NODE_PRIVATE_KEY config.txt | awk '{ print $2 }')"
 fi
 
 if [[ $SERVICE_FILE_NAME = "" ]]; then
-    SERVICE_FILE_NAME="$(cat config.txt | grep SERVICE_FILE_NAME | awk '{ print $2 }')"
+    SERVICE_FILE_NAME="$(grep SERVICE_FILE_NAME config.txt | awk '{ print $2 }')"
 fi
 
 
@@ -41,7 +41,7 @@ function generate_service_file() {
     exec_start+=" --ws-max-connections 1000"
     exec_start+=" --prometheus-port 9615"
 
-    if ! [[ $NODE_PRIVATE_KEY = "" ]]; then 
+    if ! [[ $NODE_PRIVATE_KEY = "" ]]; then
         exec_start+=" --node-key $NODE_PRIVATE_KEY"
     fi
 
@@ -75,8 +75,8 @@ function generate_service_file() {
     rm "$SERVICE_FILE_NAME"
 
     read -p "Display file content? [Y/n]: " res;
-    if [[ $res = "" || $res = "Y" ]]; then 
-        echo "$(cat generated/$SERVICE_FILE_NAME)"  
+    if [[ $res = "" || $res = "Y" ]]; then
+        echo "$(cat generated/$SERVICE_FILE_NAME)"
     fi
 
     read -p "Move file to /etc/systemd/system? [Y/n]: " res;
