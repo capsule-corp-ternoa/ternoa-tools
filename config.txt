@@ -1,0 +1,8 @@
+NODE_NAME #Something#
+NODE_MODE 0
+NODE_CHAIN mainnet
+NODE_PATH /usr/bin/ternoa
+NODE_DATABASE_PATH /block/chain/node-data
+ACCOUNT_SECRET_PHRASE #Something#
+SERVICE_FILE_NAME ternoa.service
+NODE_PRIVATE_KEY ##
