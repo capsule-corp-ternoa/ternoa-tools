@@ -86,7 +86,7 @@ function generate_service_file() {
     fi
 
     return 0
-} 
+}
 
 function generate_author_keys() {
     node_running;
@@ -208,7 +208,7 @@ function generate_account() {
 function generate_account_detailed() {
     local output="$("$NODE_PATH" key generate -w 24)"
     ACCOUNT_SECRET_PHRASE="$(echo "$output" | grep "Secret phrase:" | cut -c 22-)"
-    
+
     mkdir -p generated
     local file_path=generated/account_details.txt
 
@@ -267,8 +267,8 @@ command=$1
 if [[ $1 = "generate-account" ]]; then
     generate_account
     if [[ $? = 0 ]]; then
-        echo "Account details exported to generated/account_details.txt" 
-    fi 
+        echo "Account details exported to generated/account_details.txt"
+    fi
 fi
 
 if [[ $command = "generate-node-key" ]]; then
@@ -310,3 +310,4 @@ fi
 if [[ $command = "stop-node" ]]; then
     stop_node
 fi
+
