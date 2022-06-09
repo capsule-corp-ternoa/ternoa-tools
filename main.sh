@@ -168,7 +168,7 @@ function insert_author_keys_from_seed() {
 
 # ---- SYSTEM ----
 function node_running() {
-    ps -aux | grep ternoa | grep -v ssh | grep -v grep
+    ps -aux | grep "terno[a]"
     [[ $? = 0 ]] && RET_VAL=true || RET_VAL=false
 }
 function stop_node() {
