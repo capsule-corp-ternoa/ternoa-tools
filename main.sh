@@ -171,18 +171,64 @@ function node_running() {
     ps -aux | grep "terno[a]"
     [[ $? = 0 ]] && RET_VAL=true || RET_VAL=false
 }
+
 function stop_node() {
     systemctl stop $SERVICE_FILE_NAME
     return 0
 }
+
 function start_node() {
     systemctl start $SERVICE_FILE_NAME
     return 0
 }
+
 function enable_node() {
     systemctl enable $SERVICE_FILE_NAME
     return 0
 }
+
+function install_node() {
+    echo "using node installer"
+    curl --proto '=https' --tlsv1.2 -sSf https://install.ternoa.network | bash
+    return 0
+}
+
+function iptables_rules() {
+    echo "add iptables rules open ssh port with ask for this, and 30333/TCP for the node. Closed all other."
+
+    if [[ -z "$1" ]]; then
+        echo "put your ssh port in args."
+        echo "example with the default port :"
+        echo "./main.sh iptables_rules 22"
+        exit 1
+    fi
+
+    cat << EOF > /etc/iptables.rules
+    *filter
+    :INPUT DROP [0:0]
+    :FORWARD DROP [0:0]
+    :OUTPUT ACCEPT [0:0]
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -p icmp -j ACCEPT
+    -A INPUT -p tcp -m tcp --dport $1 -j ACCEPT
+    -A INPUT -p tcp -m tcp --dport 30333 -j ACCEPT
+    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    -A OUTPUT -o lo -j ACCEPT
+    COMMIT
+EOF
+
+    echo "add iptables start at boot."
+    cat << EOF > /etc/network/if-pre-up.d/iptables
+    #!/bin/sh
+
+    sbin/iptables-restore < /etc/iptables.rules
+EOF
+
+    echo "load the rules"
+    chmod +x /etc/network/if-pre-up.d/iptables
+    bash /etc/network/if-pre-up.d/iptables
+}
+
 #// ---- SYSTEM ----
 
 # ---- ACCOUNTS ----
@@ -212,19 +258,19 @@ function generate_account_detailed() {
     mkdir -p generated
     local file_path=generated/account_details.txt
 
-    # Controller (Sr25519) Account: 
+    # Controller (Sr25519) Account:
     echo "// Controller (Sr25519) Account: " > $file_path
     echo ""$NODE_PATH" key generate -w 24" >> $file_path
     echo "$output" >> $file_path
     echo "" >> $file_path
 
-    # Stash (Sr25519) Account: 
+    # Stash (Sr25519) Account:
     echo "// Stash (Sr25519) Account: " >> $file_path
     echo "$NODE_PATH key inspect $ACCOUNT_SECRET_PHRASE//stash" >> $file_path
     $NODE_PATH key inspect "$ACCOUNT_SECRET_PHRASE//stash" >> $file_path
     echo "" >> $file_path
 
-    # Controller (Ed25519) Account: 
+    # Controller (Ed25519) Account:
     echo "// Controller (Ed25519) Account: " >> $file_path
     echo "$NODE_PATH key inspect --scheme Ed25519  $ACCOUNT_SECRET_PHRASE" >> $file_path
     $NODE_PATH key inspect --scheme Ed25519  "$ACCOUNT_SECRET_PHRASE" >> $file_path
@@ -256,6 +302,8 @@ function help() {
    echo "      load-service-file"
    echo "      start-node"
    echo "      stop-node"
+   echo "      install_node"
+   echo "      iptables_rules"
 }
 
 if [[ -z $1 ]]; then
@@ -264,7 +312,8 @@ if [[ -z $1 ]]; then
 fi
 
 command=$1
-if [[ $1 = "generate-account" ]]; then
+
+if [[ $command = "generate-account" ]]; then
     generate_account
     if [[ $? = 0 ]]; then
         echo "Account details exported to generated/account_details.txt"
@@ -309,5 +358,13 @@ fi
 
 if [[ $command = "stop-node" ]]; then
     stop_node
+fi
+
+if [[ $command = "install_node" ]]; then
+    install_node
+fi
+
+if [[ $command = "iptables_rules" ]]; then
+    iptables_rules $2
 fi
 
