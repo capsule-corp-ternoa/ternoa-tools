@@ -204,24 +204,24 @@ function iptables_rules() {
     fi
 
     cat << EOF > /etc/iptables.rules
-    *filter
-    :INPUT DROP [0:0]
-    :FORWARD DROP [0:0]
-    :OUTPUT ACCEPT [0:0]
-    -A INPUT -i lo -j ACCEPT
-    -A INPUT -p icmp -j ACCEPT
-    -A INPUT -p tcp -m tcp --dport $1 -j ACCEPT
-    -A INPUT -p tcp -m tcp --dport 30333 -j ACCEPT
-    -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    -A OUTPUT -o lo -j ACCEPT
-    COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -p tcp -m tcp --dport $1 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 30333 -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+COMMIT
 EOF
 
     echo "add iptables start at boot."
     cat << EOF > /etc/network/if-pre-up.d/iptables
-    #!/bin/sh
+#!/bin/sh
 
-    sbin/iptables-restore < /etc/iptables.rules
+/sbin/iptables-restore < /etc/iptables.rules
 EOF
 
     echo "load the rules"
