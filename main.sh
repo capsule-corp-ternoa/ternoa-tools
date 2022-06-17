@@ -188,13 +188,13 @@ function enable_node() {
 }
 
 function install_node() {
-    echo "using node installer"
+    echo "Install ternoa node using the official installer."
     curl --proto '=https' --tlsv1.2 -sSf https://install.ternoa.network | bash
     return 0
 }
 
 function iptables_rules() {
-    echo "add iptables rules open ssh port with ask for this, and 30333/TCP for the node. Closed all other."
+    echo "Add iptables rules for open 2 TCP ports 30333, and asking for OpenSSH port. All other are close."
 
     if [[ -z "$1" ]]; then
         echo "put your ssh port in args."
@@ -217,14 +217,14 @@ function iptables_rules() {
 COMMIT
 EOF
 
-    echo "add iptables start at boot."
+    echo "Add iptables start at boot."
     cat << EOF > /etc/network/if-pre-up.d/iptables
 #!/bin/sh
 
 /sbin/iptables-restore < /etc/iptables.rules
 EOF
 
-    echo "load the rules"
+    echo "Load iptables rules"
     chmod +x /etc/network/if-pre-up.d/iptables
     bash /etc/network/if-pre-up.d/iptables
 }
